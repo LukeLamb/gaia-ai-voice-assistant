@@ -47,20 +47,21 @@ class GaiaAgent:
         """Get current time in a friendly format"""
         now = datetime.now()
         time_str = now.strftime("%I:%M %p")
-        return f"The current time is {time_str}"
-
-    def get_current_date(self):
-        """Get current date in a friendly format"""
-        now = datetime.now()
         date_str = now.strftime("%A, %B %d, %Y")
-        return f"Today is {date_str}"
+        return f"It's currently {time_str} on {date_str}"
+
+    def get_weather_info(self):
+        """Simple weather response - could be enhanced with API"""
+        return "I don't have access to weather data yet, but you can ask me to open a weather website or app for you."
 
     def parse_command(self, command: str):
         command = command.lower()
-        if "time" in command or "what time" in command:
+        if "time" in command or "what time" in command or "current time" in command:
             return ("time", self.get_current_time)
         elif "date" in command or "what date" in command or "today" in command:
-            return ("date", self.get_current_date)
+            return ("date", self.get_current_time)
+        elif "weather" in command:
+            return ("weather", self.get_weather_info)
         elif "email" in command:
             return ("email", app_control.check_outlook_inbox)
         elif "excel" in command:
