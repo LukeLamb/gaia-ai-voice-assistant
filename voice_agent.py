@@ -1,6 +1,7 @@
 import re
 import threading
 import time
+from datetime import datetime
 from core.local_llm_interface import LocalLLM
 from core.voice_manager import VoiceManager
 from core.azure_tts import AzureTTS
@@ -42,9 +43,25 @@ class GaiaAgent:
             except Exception as e2:
                 self.log(f"All TTS failed: {e2}")
 
+    def get_current_time(self):
+        """Get current time in a friendly format"""
+        now = datetime.now()
+        time_str = now.strftime("%I:%M %p")
+        return f"The current time is {time_str}"
+
+    def get_current_date(self):
+        """Get current date in a friendly format"""
+        now = datetime.now()
+        date_str = now.strftime("%A, %B %d, %Y")
+        return f"Today is {date_str}"
+
     def parse_command(self, command: str):
         command = command.lower()
-        if "email" in command:
+        if "time" in command or "what time" in command:
+            return ("time", self.get_current_time)
+        elif "date" in command or "what date" in command or "today" in command:
+            return ("date", self.get_current_date)
+        elif "email" in command:
             return ("email", app_control.check_outlook_inbox)
         elif "excel" in command:
             return ("excel", lambda: app_control.create_excel("ai_created.xlsx"))
