@@ -1,0 +1,8 @@
+ollama
+faster-whisper
+pyttsx3
+pyaudio
+pywin32
+openpyxl
+python-docx
+azure-cognitiveservices-speech

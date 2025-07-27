@@ -1,0 +1,5 @@
+{
+  "azure_key": "YOUR_AZURE_SPEECH_KEY_HERE",
+  "azure_region": "YOUR_AZURE_REGION_HERE",
+  "voice": "en-US-AriaNeural"
+}
