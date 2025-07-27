@@ -50,15 +50,13 @@ core/
 
 ### Voice Commands
 
-- **"What time is it?"** → Gets current time and date
-- **"What's the date?"** → Gets current date and time  
-- **"What's the weather?"** → Weather information (placeholder for future API)
-- **"Create an Excel file"** → Creates new Excel workbook
-- **"Create a Word document"** → Creates new Word document
-- **"Check my email"** → Opens Outlook inbox
-- **"Open [app name]"** → Opens specified application
-- **"Sleep"** → Puts Gaia into sleep mode
-- **"Wake up, Gaia"** → Wakes from sleep mode
+- "What time is it?" → Gets current time
+- "What's the date?" → Gets current date  
+- "Create an Excel file" → Creates new Excel workbook
+- "Create a Word document" → Creates new Word document
+- "Open [app name]" → Opens specified application
+- "Sleep" → Puts Gaia into sleep mode
+- "Wake up, Gaia" → Wakes from sleep mode
 
 ## Configuration
 

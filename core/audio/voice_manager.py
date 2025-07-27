@@ -92,17 +92,6 @@ class VoiceManager:
 
         return filename
 
-    def cleanup(self):
-        """Clean up resources."""
-        try:
-            if hasattr(self, 'model') and self.model:
-                # Whisper model cleanup
-                del self.model
-                self.model = None
-                print("[VoiceManager] Whisper model cleaned up")
-        except Exception as e:
-            print(f"[VoiceManager] Cleanup error: {e}")
-
     def transcribe(self, audio_file):
         """Convert speech to text."""
         try:
@@ -120,4 +109,15 @@ class VoiceManager:
         except Exception as e:
             print(f"Error during transcription: {e}")
             return ""
+
+    def cleanup(self):
+        """Clean up resources."""
+        try:
+            if hasattr(self, 'model') and self.model:
+                # Whisper model cleanup
+                del self.model
+                self.model = None
+                print("[VoiceManager] Whisper model cleaned up")
+        except Exception as e:
+            print(f"[VoiceManager] Cleanup error: {e}")
 

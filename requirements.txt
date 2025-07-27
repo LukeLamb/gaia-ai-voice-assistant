@@ -6,3 +6,5 @@ pywin32
 openpyxl
 python-docx
 azure-cognitiveservices-speech
+PyQt5
+PyQt5-tools

@@ -31,6 +31,9 @@ Thumbs.db
 # Config files with sensitive data
 config.json
 
+# User memory files
+user_memory.json
+
 # Logs
 *.log
 logs/
