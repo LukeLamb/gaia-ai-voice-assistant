@@ -2,6 +2,7 @@
 Professional PyQt5 Main Window for Gaia AI Assistant
 """
 import sys
+from datetime import datetime
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QTabWidget, QTextEdit, QPushButton,
                              QLabel, QFrame, QSplitter, QSystemTrayIcon, QMenu)
@@ -10,6 +11,7 @@ from PyQt5.QtGui import QIcon, QFont, QPixmap, QCloseEvent
 from gui.widgets.chat_widget import ChatWidget
 from gui.widgets.control_panel import ControlPanel
 from gui.widgets.status_bar import StatusBar
+from core.agent.gaia_agent import GaiaAgent
 
 
 class GaiaMainWindow(QMainWindow):
@@ -20,6 +22,7 @@ class GaiaMainWindow(QMainWindow):
         self.gaia_agent = None
         self.init_ui()
         self.setup_system_tray()
+        self.connect_signals()
         
     def init_ui(self):
         """Initialize the user interface"""
@@ -263,8 +266,20 @@ class GaiaMainWindow(QMainWindow):
         self.setStyleSheet(dark_style)
         
     def log_message(self, message):
-        """Add message to log widget"""
-        self.log_widget.append(message)
+        """Add message to log widget with timestamp"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        formatted_message = f"[{timestamp}] {message}"
+        
+        # Add to log widget
+        self.log_widget.append(formatted_message)
+        
+        # Auto-scroll to bottom
+        scrollbar = self.log_widget.verticalScrollBar()
+        if scrollbar:
+            scrollbar.setValue(scrollbar.maximum())
+        
+        # Also print to console for debugging
+        print(formatted_message)
         
     def update_status(self, status):
         """Update status display"""
@@ -275,6 +290,68 @@ class GaiaMainWindow(QMainWindow):
         """Update user display"""
         self.user_label.setText(user_name if user_name else "Not identified")
         
+    def connect_signals(self):
+        """Connect control panel signals to agent methods"""
+        self.control_panel.start_clicked.connect(self.start_gaia)
+        self.control_panel.pause_clicked.connect(self.pause_gaia)
+        self.control_panel.stop_clicked.connect(self.stop_gaia)
+    
+    def start_gaia(self):
+        """Start the Gaia AI agent"""
+        try:
+            if self.gaia_agent is None:
+                # Initialize the agent with GUI log callback
+                self.gaia_agent = GaiaAgent(log_callback=self.log_message)
+                self.log_message("🤖 Gaia AI Agent initialized")
+            
+            # Start the agent
+            self.gaia_agent.start()
+            self.log_message("✅ Gaia AI started successfully")
+            self.status_label.setText("Running")
+            self.status_label.setStyleSheet("color: #4CAF50; font-size: 14px; padding: 5px;")
+            
+        except Exception as e:
+            error_msg = f"❌ Failed to start Gaia: {str(e)}"
+            self.log_message(error_msg)
+            self.status_label.setText("Error")
+            self.status_label.setStyleSheet("color: #F44336; font-size: 14px; padding: 5px;")
+    
+    def pause_gaia(self):
+        """Pause/resume the Gaia AI agent"""
+        try:
+            if self.gaia_agent and self.gaia_agent.running:
+                if self.gaia_agent.paused:
+                    self.gaia_agent.resume()
+                    self.log_message("▶️ Gaia AI resumed")
+                    self.status_label.setText("Running")
+                    self.status_label.setStyleSheet("color: #4CAF50; font-size: 14px; padding: 5px;")
+                else:
+                    self.gaia_agent.pause()
+                    self.log_message("⏸️ Gaia AI paused")
+                    self.status_label.setText("Paused")
+                    self.status_label.setStyleSheet("color: #FF9800; font-size: 14px; padding: 5px;")
+            else:
+                self.log_message("⚠️ Gaia is not running")
+                
+        except Exception as e:
+            error_msg = f"❌ Failed to pause/resume Gaia: {str(e)}"
+            self.log_message(error_msg)
+    
+    def stop_gaia(self):
+        """Stop the Gaia AI agent"""
+        try:
+            if self.gaia_agent:
+                self.gaia_agent.stop()
+                self.log_message("⏹️ Gaia AI stopped")
+                self.status_label.setText("Stopped")
+                self.status_label.setStyleSheet("color: #F44336; font-size: 14px; padding: 5px;")
+            else:
+                self.log_message("⚠️ Gaia is not running")
+                
+        except Exception as e:
+            error_msg = f"❌ Failed to stop Gaia: {str(e)}"
+            self.log_message(error_msg)
+
     def show_window(self):
         """Show the main window"""
         self.show()

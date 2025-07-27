@@ -1,0 +1,70 @@
+{
+  "hotel_name": "Your Hotel",
+  "rooms": {
+    "1": {
+      "number": "1",
+      "room_type": "double",
+      "status": "available",
+      "guest_name": null,
+      "check_in": null,
+      "check_out": null
+    },
+    "2": {
+      "number": "2",
+      "room_type": "double",
+      "status": "available",
+      "guest_name": null,
+      "check_in": null,
+      "check_out": null
+    },
+    "3": {
+      "number": "3",
+      "room_type": "double",
+      "status": "available",
+      "guest_name": null,
+      "check_in": null,
+      "check_out": null
+    },
+    "4": {
+      "number": "4",
+      "room_type": "double",
+      "status": "available",
+      "guest_name": null,
+      "check_in": null,
+      "check_out": null
+    },
+    "5": {
+      "number": "5",
+      "room_type": "double",
+      "status": "available",
+      "guest_name": null,
+      "check_in": null,
+      "check_out": null
+    },
+    "6": {
+      "number": "6",
+      "room_type": "double",
+      "status": "available",
+      "guest_name": null,
+      "check_in": null,
+      "check_out": null
+    },
+    "7": {
+      "number": "7",
+      "room_type": "suite",
+      "status": "available",
+      "guest_name": null,
+      "check_in": null,
+      "check_out": null
+    },
+    "8": {
+      "number": "8",
+      "room_type": "suite",
+      "status": "available",
+      "guest_name": null,
+      "check_in": null,
+      "check_out": null
+    }
+  },
+  "processed_emails": []
+}

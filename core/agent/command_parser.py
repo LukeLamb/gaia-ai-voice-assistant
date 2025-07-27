@@ -66,56 +66,13 @@ class CommandParser:
         """Handle general application commands"""
         if "excel" in command:
             return app_control.create_excel("ai_created.xlsx")
-        elif self._is_word_command(command):
-            return self._handle_word_command(command)
+        elif "word" in command or "document" in command:
+            return app_control.create_word_doc("ai_created.docx")
         elif "open" in command:
             app_match = re.search(r"open (.+)", command)
             app_name = app_match.group(1) if app_match else "notepad.exe"
             return app_control.open_app(app_name)
         return None
-    
-    def _is_word_command(self, command: str) -> bool:
-        """Check if command is related to Word"""
-        word_keywords = ["word", "document", "doc"]
-        return any(keyword in command for keyword in word_keywords)
-    
-    def _handle_word_command(self, command: str):
-        """Handle Word-specific commands with better logic"""
-        # Commands that should open Word application
-        open_app_patterns = [
-            "open word",
-            "launch word", 
-            "start word",
-            "open microsoft word",
-            "run word"
-        ]
-        
-        # Commands that should create a document
-        create_doc_patterns = [
-            "create document",
-            "new document", 
-            "make document",
-            "create word document",
-            "new word document"
-        ]
-        
-        # Check for app opening commands first
-        for pattern in open_app_patterns:
-            if pattern in command:
-                return app_control.open_app("winword.exe")  # Microsoft Word executable
-        
-        # Check for document creation commands
-        for pattern in create_doc_patterns:
-            if pattern in command:
-                return app_control.create_word_doc("ai_created.docx")
-        
-        # Default behavior for ambiguous "word" or "document" commands
-        # If user just says "word" or "document", assume they want to open the app
-        if command.strip() in ["word", "document", "doc"]:
-            return app_control.open_app("winword.exe")
-        
-        # For other word-related commands, create a document
-        return app_control.create_word_doc("ai_created.docx")
         
     def get_current_time(self):
         """Get current time in a friendly format."""

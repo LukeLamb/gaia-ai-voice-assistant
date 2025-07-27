@@ -35,29 +35,5 @@ def create_word_doc(file_path="example.docx", text="Hello from AI Agent!"):
 
 def open_app(app_name="notepad.exe"):
     """Open a local application."""
-    try:
-        # Handle special cases for common applications
-        if app_name == "winword.exe" or app_name == "word":
-            # Try multiple ways to open Word
-            word_paths = [
-                "winword.exe",  # If Word is in PATH
-                "microsoft word",  # Windows start menu
-                "word"  # Simple name
-            ]
-            
-            for path in word_paths:
-                try:
-                    os.startfile(path)
-                    return "Microsoft Word opened successfully"
-                except OSError:
-                    continue
-            
-            # If all methods fail
-            return "Could not open Microsoft Word. Please make sure it's installed."
-        
-        # For other applications
-        os.startfile(app_name)
-        return f"Opened {app_name}"
-        
-    except Exception as e:
-        return f"Error opening {app_name}: {e}"
+    os.startfile(app_name)
+    return f"Opened {app_name}"
