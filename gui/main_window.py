@@ -170,7 +170,23 @@ class GaiaMainWindow(QMainWindow):
         """Setup system tray icon"""
         if QSystemTrayIcon.isSystemTrayAvailable():
             self.tray_icon = QSystemTrayIcon(self)
-            # self.tray_icon.setIcon(QIcon('resources/icons/gaia_tray.png'))
+            
+            # Use a simple built-in icon to avoid the "No Icon set" warning
+            try:
+                from PyQt5.QtGui import QIcon, QPixmap, QPainter, QColor
+                
+                # Create a simple icon programmatically
+                pixmap = QPixmap(16, 16)
+                pixmap.fill(QColor(0, 0, 0, 0))  # Transparent
+                painter = QPainter(pixmap)
+                painter.fillRect(4, 4, 8, 8, QColor(0, 0, 255))  # Blue
+                painter.end()
+                
+                self.tray_icon.setIcon(QIcon(pixmap))
+                self.tray_icon.setToolTip("Gaia AI Assistant")
+            except Exception:
+                # If icon creation fails, skip the system tray
+                return
             
             # Create tray menu
             tray_menu = QMenu()
@@ -188,7 +204,13 @@ class GaiaMainWindow(QMainWindow):
                 quit_action.triggered.connect(self.quit_application)
             
             self.tray_icon.setContextMenu(tray_menu)
-            self.tray_icon.show()
+            
+            # Only show tray icon if we have an icon set
+            try:
+                self.tray_icon.show()
+            except Exception:
+                # If tray icon fails, continue without it
+                pass
             
     def apply_dark_theme(self):
         """Apply dark theme styling"""

@@ -7,6 +7,10 @@ Quick verification of all major components
 import sys
 from pathlib import Path
 
+# Add project root to path (since we're now in tests subdirectory)
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 def test_imports():
     """Test all critical imports"""
     print("🔧 Testing Core Imports...")

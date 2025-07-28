@@ -34,7 +34,6 @@ def main():
 def run_terminal_menu():
     """Terminal-based interface selection (fallback)"""
     _display_banner()
-    interfaces = _get_interface_mappings()
     
     while True:
         try:
@@ -48,7 +47,7 @@ def run_terminal_menu():
                 continue
                 
             interface_type = _get_interface_type(choice)
-            _launch_interface(interface_type, interfaces)
+            _launch_interface(interface_type)
             
             if not _should_continue():
                 print("👋 Thank you for using Gaia AI!")
@@ -67,43 +66,39 @@ def run_terminal_menu():
 def _display_banner():
     """Display the main terminal banner"""
     banner = """
-╔══════════════════════════════════════════════════════════════╗
-║                    🤖 GAIA AI ASSISTANT                      ║
-║                   Professional Modular System                ║
-╠══════════════════════════════════════════════════════════════╣
-║  Available Interfaces:                                       ║
-║  🖥️  GUI        - Professional PyQt5 interface              ║
-║  💻 CLI        - Command line interface                     ║  
-║  🏨 Hotel      - Hotel management system                    ║
-║  🧠 Training   - LLM training and fine-tuning              ║
-║  📧 Email      - Email integration setup                    ║
-╚══════════════════════════════════════════════════════════════╝
+================================================================================
+                         GAIA AI ASSISTANT                      
+                    Professional Modular System                
+================================================================================
+  Available Interfaces:                                       
+  GUI        - Professional PyQt5 interface              
+  CLI        - Command line interface                     
+  Hotel      - Hotel management system                    
+  Training   - LLM training and fine-tuning              
+  Email      - Email integration setup                    
+================================================================================
         """
     print(banner)
 
 
 def _get_interface_mappings():
-    """Get the mapping of interface types to classes"""
-    from src.interfaces.cli_interface import CLIInterface
-    from src.interfaces.gui_interface import GUIInterface  
-    from src.interfaces.hotel_interface import HotelInterface
-    
+    """Get the mapping of interface types to classes (lazy loading)"""
     return {
-        'cli': CLIInterface,
-        'gui': GUIInterface,
-        'hotel': HotelInterface
+        'cli': 'CLIInterface',
+        'gui': 'GUIInterface',
+        'hotel': 'HotelInterface'
     }
 
 
 def _get_user_choice():
     """Display menu and get user choice"""
     print("Select interface:")
-    print("1. 🖥️  GUI (Recommended) - Professional interface")
-    print("2. 💻 CLI - Command line interface")
-    print("3. 🏨 Hotel - Hotel management system")
-    print("4. 🧠 Training - Train/fine-tune LLM")
-    print("5. 📧 Email - Setup email integration")
-    print("6. ❌ Exit")
+    print("1. GUI (Recommended) - Professional interface")
+    print("2. CLI - Command line interface")
+    print("3. Hotel - Hotel management system")
+    print("4. Training - Train/fine-tune LLM")
+    print("5. Email - Setup email integration")
+    print("6. Exit")
     
     return input("\nEnter choice (1-6): ").strip()
 
@@ -129,7 +124,7 @@ def _get_interface_type(choice):
     return choices[choice]
 
 
-def _launch_interface(interface_type, interfaces):
+def _launch_interface(interface_type):
     """Launch the selected interface"""
     if interface_type == 'training':
         from src.training.llm_trainer import LLMTrainer
@@ -139,9 +134,17 @@ def _launch_interface(interface_type, interfaces):
         from src.interfaces.email_interface import EmailInterface
         email_interface = EmailInterface()
         email_interface.run()
-    elif interface_type in interfaces:
-        interface_class = interfaces[interface_type]
-        interface = interface_class()
+    elif interface_type == 'cli':
+        from src.interfaces.cli_interface import CLIInterface
+        interface = CLIInterface()
+        interface.run()
+    elif interface_type == 'gui':
+        from src.interfaces.gui_interface import GUIInterface
+        interface = GUIInterface()
+        interface.run()
+    elif interface_type == 'hotel':
+        from src.interfaces.hotel_interface import HotelInterface
+        interface = HotelInterface()
         interface.run()
     else:
         print(f"❌ Unknown interface: {interface_type}")

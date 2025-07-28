@@ -44,21 +44,35 @@ class GUIInterface:
             return 1
         
         try:
-            self.app = QApplicationClass(sys.argv)
-            self.app.setApplicationName("Gaia AI Assistant")
-            self.app.setApplicationVersion("3.0")
-            self.app.setOrganizationName("Gaia AI")
+            # Check if QApplication already exists (from launcher)
+            existing_app = QApplicationClass.instance()
             
-            self.main_window = GaiaMainWindowClass()
-            self.main_window.show()
-            
-            return self.app.exec_()
+            if existing_app is None:
+                # Create new application if none exists
+                self.app = QApplicationClass(sys.argv)
+                self.app.setApplicationName("Gaia AI Assistant")
+                self.app.setApplicationVersion("3.0")
+                self.app.setOrganizationName("Gaia AI")
+                
+                self.main_window = GaiaMainWindowClass()
+                self.main_window.show()
+                
+                return self.app.exec_()
+            else:
+                # Use existing application - show window and wait for user input
+                self.main_window = GaiaMainWindowClass()
+                self.main_window.show()
+                
+                # Keep the interface running until user closes the window
+                print("✅ GUI window opened. Close the window to continue...")
+                while self.main_window.isVisible():
+                    existing_app.processEvents()
+                    import time
+                    time.sleep(0.1)
+                
+                return 0
             
         except Exception as e:
             print(f"❌ GUI Error: {e}")
             print("Try running: python -m pip install PyQt5")
             return 1
-        
-        finally:
-            if self.app:
-                self.app.quit()
