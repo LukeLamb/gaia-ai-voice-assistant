@@ -15,6 +15,7 @@ A comprehensive voice-controlled AI assistant built with Python that combines Az
 ## Quick Start
 
 1. **Install Dependencies**:
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -24,13 +25,14 @@ A comprehensive voice-controlled AI assistant built with Python that combines Az
    - Add your Azure Speech Service key and region
 
 3. **Run Gaia**:
+
    ```bash
    python gaia_gui.py
    ```
 
 ## Architecture
 
-```
+```text
 gaia_gui.py          # Professional Tkinter GUI interface
 voice_agent.py       # Core GaiaAgent with TTS fallback system
 core/
@@ -40,6 +42,16 @@ core/
 ├── local_llm_interface.py # Ollama/LLaMA integration
 └── app_control.py   # Windows automation (Excel, Word, etc.)
 ```
+
+## 📚 Documentation
+
+For comprehensive documentation, visit the [docs](./docs/) directory:
+
+- **[Architecture Guide](./docs/architecture/)** - System design and modular structure
+- **[Hotel Module](./docs/hotel/)** - Hotel management system documentation  
+- **[Setup Guides](./docs/setup/)** - Installation and configuration
+- **[Migration Notes](./docs/migration/)** - System migration documentation
+- **[Test Documentation](./tests/README.md)** - Testing guidelines and structure
 
 ## Usage
 
@@ -61,6 +73,7 @@ core/
 ## Configuration
 
 ### Azure Speech (Optional)
+
 ```json
 {
   "azure_key": "your-azure-speech-key",
@@ -70,6 +83,7 @@ core/
 ```
 
 ### Environment Setup
+
 - **Python 3.13+** required
 - **CUDA support** recommended for Whisper acceleration
 - **Ollama** for local LLM functionality
@@ -77,6 +91,7 @@ core/
 ## Development
 
 ### Critical Features
+
 - ✅ TTS Fallback System (Azure → Local)
 - ✅ Voice Debug Logging ("Heard: ..." output)
 - ✅ Robust Error Handling
@@ -84,6 +99,7 @@ core/
 - ✅ Windows Automation
 
 ### Recent Updates
+
 - Added robust TTS fallback system with Azure → Local failover
 - Implemented comprehensive voice debug logging
 - Enhanced error handling for production reliability
@@ -92,6 +108,7 @@ core/
 ## Dependencies
 
 See `requirements.txt` for complete list:
+
 - `tkinter` - GUI framework
 - `azure-cognitiveservices-speech` - Azure TTS
 - `faster-whisper` - Speech recognition
