@@ -64,15 +64,51 @@ class CommandParser:
             
     def _handle_app_commands(self, command: str):
         """Handle general application commands"""
-        if "excel" in command:
+        # Handle questions about available programs
+        if self._is_program_list_query(command):
+            return self._list_available_programs()
+        elif "excel" in command:
             return app_control.create_excel("ai_created.xlsx")
         elif "word" in command or "document" in command:
             return app_control.create_word_doc("ai_created.docx")
         elif "open" in command:
-            app_match = re.search(r"open (.+)", command)
-            app_name = app_match.group(1) if app_match else "notepad.exe"
-            return app_control.open_app(app_name)
+            return self._handle_open_command(command)
         return None
+    
+    def _is_program_list_query(self, command: str):
+        """Check if command is asking for list of available programs"""
+        program_queries = [
+            ("what programs" in command and "open" in command),
+            ("which programs" in command and "open" in command),
+            ("list programs" in command),
+            ("available programs" in command)
+        ]
+        return any(program_queries)
+    
+    def _handle_open_command(self, command: str):
+        """Handle 'open' commands with robust parsing"""
+        # More robust parsing - avoid questions about opening
+        if self._is_question_about_opening(command):
+            return None  # Let LLM handle questions about opening
+            
+        app_match = re.search(r"open (.+)", command)
+        if app_match:
+            app_name = app_match.group(1).strip()
+            # Filter out common question words that aren't program names
+            if self._contains_question_words(app_name):
+                return None
+            return app_control.open_app(app_name)
+        return app_control.open_app("notepad.exe")
+    
+    def _is_question_about_opening(self, command: str):
+        """Check if command is a question about opening rather than a command to open"""
+        question_indicators = ["can you", "which", "what", "?"]
+        return any(indicator in command for indicator in question_indicators)
+    
+    def _contains_question_words(self, app_name: str):
+        """Check if app name contains question words that indicate it's not a real app name"""
+        question_words = ["can", "you", "which", "what", "how", "verbally", "?"]
+        return any(word in app_name.lower() for word in question_words)
         
     def get_current_time(self):
         """Get current time in a friendly format."""
@@ -85,3 +121,19 @@ class CommandParser:
         now = datetime.now()
         date_str = now.strftime("%A, %B %d, %Y")
         return f"Today is {date_str}"
+
+    def _list_available_programs(self):
+        """List programs that can be opened verbally"""
+        programs = [
+            "You can open these programs by saying 'open' followed by:",
+            "• Excel - Creates a new Excel spreadsheet",
+            "• Word or Document - Creates a new Word document", 
+            "• Outlook - Opens Outlook and shows recent emails",
+            "• Any program name like 'notepad', 'calculator', 'chrome', etc.",
+            "",
+            "You can also ask me to:",
+            "• Check emails or show emails",
+            "• Get the current time or date",
+            "• Have general conversations about any topic"
+        ]
+        return programs

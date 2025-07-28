@@ -4,6 +4,7 @@ Simple GUI Launcher for Gaia AI Assistant
 
 import sys
 import os
+import subprocess
 from pathlib import Path
 
 # Add project root to path
@@ -202,45 +203,27 @@ class GaiaLauncherWindow(QMainWindow):
         """)
         
     def launch_interface(self, interface_type):
-        """Launch selected interface"""
+        """Launch selected interface in separate process"""
         try:
             print(f"🚀 Launching {interface_type} interface...")
             
-            if interface_type == 'gui':
-                from src.interfaces.gui_interface import GUIInterface
-                self.hide()
-                gui = GUIInterface()
-                gui.run()
-                
-            elif interface_type == 'hotel':
-                from src.interfaces.hotel_interface import HotelInterface
-                self.hide()
-                hotel = HotelInterface()
-                hotel.run()
-                
-            elif interface_type == 'training':
-                from src.training.llm_trainer import LLMTrainer
-                self.hide()
-                trainer = LLMTrainer()
-                trainer.run()
-                
-            elif interface_type == 'cli':
-                from src.interfaces.cli_interface import CLIInterface
-                self.hide()
-                cli = CLIInterface()
-                cli.run()
-                
-            elif interface_type == 'email':
-                from src.interfaces.email_interface import EmailInterface
-                self.hide()
-                email = EmailInterface()
-                email.run()
-                
-            elif interface_type == 'settings':
+            if interface_type == 'settings':
                 QMessageBox.information(
                     self, 
                     "Settings", 
                     "Settings interface coming soon!\n\n• Voice preferences\n• Model configurations\n• System settings"
+                )
+                return
+            
+            # Launch interface using runner script
+            success = self._launch_interface_process(interface_type)
+            
+            if success:
+                # Show success message but keep launcher open
+                QMessageBox.information(
+                    self,
+                    "Interface Launched",
+                    f"✅ {interface_type.title()} interface has been launched!\n\nThe launcher will remain open for additional selections."
                 )
             else:
                 QMessageBox.warning(self, "Error", f"Unknown interface: {interface_type}")
@@ -248,6 +231,36 @@ class GaiaLauncherWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Launch Error", f"Failed to launch {interface_type}:\n{str(e)}")
             print(f"❌ Error: {e}")
+    
+    def _launch_interface_process(self, interface_type):
+        """Launch interface in separate process and return success status"""
+        try:
+            project_root = Path(__file__).parent.parent
+            
+            if interface_type == 'cli':
+                # For CLI, use gaia.py with terminal flag - needs new console
+                gaia_script = project_root / "gaia.py"
+                subprocess.Popen([sys.executable, str(gaia_script), '--terminal'], 
+                               cwd=str(project_root),
+                               creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0)
+            else:
+                # For GUI interfaces, run without new console
+                runner_script = project_root / "run_interface.py"
+                if os.name == 'nt':
+                    # On Windows, run GUI interfaces without console window
+                    subprocess.Popen([sys.executable, str(runner_script), interface_type], 
+                                   cwd=str(project_root),
+                                   creationflags=subprocess.CREATE_NO_WINDOW)
+                else:
+                    # On Unix-like systems
+                    subprocess.Popen([sys.executable, str(runner_script), interface_type], 
+                                   cwd=str(project_root))
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to launch process: {e}")
+            return False
 
 
 def main():
@@ -262,7 +275,13 @@ def main():
     launcher = GaiaLauncherWindow()
     launcher.show()
     
-    return app.exec_()
+    # Run the event loop and return the exit code
+    exit_code = app.exec_()
+    
+    # Ensure proper cleanup
+    app.quit()
+    
+    return exit_code
 
 
 if __name__ == "__main__":

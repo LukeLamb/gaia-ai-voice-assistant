@@ -302,6 +302,22 @@ class GaiaMainWindow(QMainWindow):
         
         # Also print to console for debugging
         print(formatted_message)
+    
+    def handle_conversation_message(self, speaker, message):
+        """Handle conversation messages and add them to the chat widget"""
+        if speaker.lower() == "luke":
+            self.chat_widget.add_user_message(message)
+        elif speaker.lower() == "gaia":
+            self.chat_widget.add_gaia_message(message)
+            
+            # Check if this was a greeting with a new user name
+            if "nice to meet you" in message.lower() and self.gaia_agent:
+                user_name = self.gaia_agent.user_memory.get_user_name()
+                if user_name:
+                    self.update_user(user_name)
+                    self.log_message(f"👤 User identified: {user_name}")
+        else:
+            self.chat_widget.add_system_message(f"{speaker}: {message}")
         
     def update_status(self, status):
         """Update status display"""
@@ -322,8 +338,11 @@ class GaiaMainWindow(QMainWindow):
         """Start the Gaia AI agent"""
         try:
             if self.gaia_agent is None:
-                # Initialize the agent with GUI log callback
-                self.gaia_agent = GaiaAgent(log_callback=self.log_message)
+                # Initialize the agent with GUI log and conversation callbacks
+                self.gaia_agent = GaiaAgent(
+                    log_callback=self.log_message,
+                    conversation_callback=self.handle_conversation_message
+                )
                 self.log_message("🤖 Gaia AI Agent initialized")
             
             # Start the agent
@@ -331,6 +350,14 @@ class GaiaMainWindow(QMainWindow):
             self.log_message("✅ Gaia AI started successfully")
             self.status_label.setText("Running")
             self.status_label.setStyleSheet("color: #4CAF50; font-size: 14px; padding: 5px;")
+            
+            # Update user name in GUI if known
+            user_name = self.gaia_agent.user_memory.get_user_name()
+            if user_name:
+                self.update_user(user_name)
+                self.log_message(f"👤 User identified: {user_name}")
+            else:
+                self.update_user(None)  # Will show "Not identified"
             
         except Exception as e:
             error_msg = f"❌ Failed to start Gaia: {str(e)}"

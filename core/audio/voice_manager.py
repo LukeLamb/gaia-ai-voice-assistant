@@ -65,8 +65,9 @@ class VoiceManager:
                 frames_per_buffer=chunk
             )
 
-            # Start recording
-            for _ in range(0, int(rate / chunk * duration)):
+            # Start recording with better timing
+            total_frames = int(rate / chunk * duration)
+            for i in range(total_frames):
                 data = stream.read(chunk, exception_on_overflow=False)
                 frames.append(data)
             
@@ -78,6 +79,7 @@ class VoiceManager:
                 stream.stop_stream()
                 stream.close()
             if p:
+                p.terminate()
                 p.terminate()
 
         try:
@@ -109,6 +111,95 @@ class VoiceManager:
         except Exception as e:
             print(f"Error during transcription: {e}")
             return ""
+
+    def record_audio_smart(self, max_duration=10, silence_threshold=500, silence_duration=2):
+        """
+        Record audio with voice activity detection.
+        Stops recording when user stops speaking for specified duration.
+        """
+        import numpy as np
+        
+        filename = os.path.join(tempfile.gettempdir(), "input_smart.wav")
+        chunk = 1024
+        audio_format = pyaudio.paInt16
+        channels = 1
+        rate = 16000
+
+        p = None
+        stream = None
+        frames = []
+        
+        try:
+            p = pyaudio.PyAudio()
+            sample_width = p.get_sample_size(audio_format)
+            
+            # Find the best input device
+            input_device_index = None
+            for i in range(p.get_device_count()):
+                info = p.get_device_info_by_index(i)
+                max_inputs = info.get('maxInputChannels', 0)
+                if isinstance(max_inputs, (int, float)) and max_inputs > 0:
+                    input_device_index = i
+                    break
+            
+            stream = p.open(
+                format=audio_format, 
+                channels=channels, 
+                rate=rate, 
+                input=True,
+                input_device_index=input_device_index,
+                frames_per_buffer=chunk
+            )
+
+            print("🎤 Recording... (speak now)")
+            
+            silent_chunks = 0
+            audio_started = False
+            max_silent_chunks = int(silence_duration * rate / chunk)
+            max_chunks = int(max_duration * rate / chunk)
+            
+            for i in range(max_chunks):
+                data = stream.read(chunk, exception_on_overflow=False)
+                frames.append(data)
+                
+                # Convert to numpy array to check volume
+                audio_data = np.frombuffer(data, dtype=np.int16)
+                volume = np.sqrt(np.mean(audio_data**2))
+                
+                if volume < silence_threshold:
+                    silent_chunks += 1
+                else:
+                    silent_chunks = 0
+                    audio_started = True
+                
+                # Stop recording if we've had enough silence after audio started
+                if audio_started and silent_chunks > max_silent_chunks:
+                    print("🔇 Silence detected, stopping recording")
+                    break
+            
+            print("✅ Recording complete")
+            
+        except Exception as e:
+            print(f"Error during smart recording: {e}")
+            return None
+        finally:
+            if stream:
+                stream.stop_stream()
+                stream.close()
+            if p:
+                p.terminate()
+
+        try:
+            with wave.open(filename, 'wb') as wf:
+                wf.setnchannels(channels)
+                wf.setsampwidth(sample_width)
+                wf.setframerate(rate)
+                wf.writeframes(b''.join(frames))
+        except Exception as e:
+            print(f"Error saving smart audio file: {e}")
+            return None
+
+        return filename
 
     def cleanup(self):
         """Clean up resources."""

@@ -13,6 +13,11 @@ sys.path.insert(0, str(project_root))
 
 def main():
     """Main function - Launch GUI launcher by default"""
+    # Check if user wants terminal interface directly
+    if len(sys.argv) > 1 and sys.argv[1] in ['--terminal', '-t', '--cli']:
+        print("🖥️ Starting in terminal mode...")
+        return run_terminal_menu()
+    
     try:
         # Import and launch the simple GUI launcher
         from gui.simple_launcher import main as launcher_main
